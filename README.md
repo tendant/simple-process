@@ -46,7 +46,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 
 ## Extending the Library
 - Implement additional transports (Kafka, NATS, SQS) under `transports/` by translating incoming jobs into `contracts.Job`.
-- Provide concrete adapters in `core/adapters/*` to integrate with your blob store, metadata service, or observability stack; the in-memory bus and metadata adapters double as reference implementations.
+- Provide concrete adapters in `core/adapters/*` to integrate with your blob store, metadata service, or observability stack; the in-memory implementations and optional S3/MinIO storage adapter (build tag `s3`) double as reference templates.
 - Add new reference UoWs under `uows/` and document them in `docs/` so other teams can reuse them.
 - Keep Job/Result evolution backward compatible; document contract changes in `docs/contracts.md` and version payloads via the `Job.Version` field.
 
@@ -54,6 +54,12 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 - Start a local broker: `nats-server` (Homebrew: `brew install nats-server`).
 - Fetch the NATS client once: `go get github.com/nats-io/nats.go@latest`.
 - Publish and consume a job via NATS: `go run -tags nats ./examples/nats`. The example wires `AsyncRunner` into the NATS-backed bus and processes the message with a queue worker using the same in-memory storage used elsewhere in the repository while wrapping every message in a CloudEvents v1.0 envelope.
+
+## S3 / MinIO Storage Adapter (Optional)
+- Build with the `s3` tag to enable the S3-compatible adapter: `go build -tags s3 ./...`.
+- Configure the adapter via `s3.Config` (endpoint, credentials, bucket, optional prefix) and inject it in place of the in-memory storage when constructing runners or UoWs.
+- The adapter streams reads via `Get`, uploads via `Put` without buffering entire files, and issues presigned download URLs through `PresignGet`.
+- It targets S3 and MinIO using the `github.com/minio/minio-go/v7` client; provide credentials through your preferred secrets mechanism.
 
 ## CloudEvents Envelope
 - Jobs published over transports are wrapped in a minimal CloudEvents v1.0 structure (`core/contracts/cloudevent.go`).
