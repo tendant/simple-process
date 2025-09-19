@@ -1,7 +1,9 @@
 package storage
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"io"
 	"sync"
 
@@ -60,6 +62,6 @@ func (s *InMemoryStorage) PresignGet(ctx context.Context, location string) (stri
 		return "", adapters.ErrNotFound
 	}
 
-	return "data:application/octet-stream;base64," + string(data), nil
+	encoded := base64.StdEncoding.EncodeToString(data)
+	return "data:application/octet-stream;base64," + encoded, nil
 }
-

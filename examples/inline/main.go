@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tendant/simple-process/core/adapters/storage"
 	"github.com/tendant/simple-process/core/contracts"
@@ -25,13 +26,13 @@ func main() {
 		JobID: "example-job-1",
 		UoW:   "hash",
 		File: contracts.File{
-			ID:       "example-file-1",
-			Blob:     contracts.Blob{Location: "example.txt"},
+			ID:   "example-file-1",
+			Blob: contracts.Blob{Location: "example.txt"},
 		},
 	}
 
 	// Upload a sample file to the in-memory storage.
-	storage.Put(context.Background(), "example.txt", "hello world")
+	storage.Put(context.Background(), "example.txt", strings.NewReader("hello world"))
 
 	// Run the UoW.
 	result, err := runner.Run(context.Background(), hashUoW, job)
@@ -42,4 +43,3 @@ func main() {
 	// Print the result.
 	fmt.Printf("Result: %+v\n", result)
 }
-

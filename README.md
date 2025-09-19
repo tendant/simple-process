@@ -23,6 +23,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 2. Build the inline sample: `make build` (outputs to `bin/inline-example`).
 3. Execute tests: `make test` (or `go test ./...`). Set `GOCACHE=$(pwd)/.gocache` when running under sandboxed environments.
 4. Run the inline example: `go run ./examples/inline` after pointing `storage.Put` at a reader for your input file.
+5. Try the async workflow: `go run ./examples/async` to see `AsyncRunner` publishing to the in-memory bus while a worker updates metadata.
 
 ## Working with Units of Work
 - **Go:** Implement `core/uow.UoW` and return a `contracts.Result`. Refer to `uows/go/hash/hash.go` for a minimal example.
@@ -36,7 +37,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 
 ## Extending the Library
 - Implement additional transports (Kafka, NATS, SQS) under `transports/` by translating incoming jobs into `contracts.Job`.
-- Provide concrete adapters in `core/adapters/*` to integrate with your blob store, metadata service, or observability stack.
+- Provide concrete adapters in `core/adapters/*` to integrate with your blob store, metadata service, or observability stack; the in-memory bus and metadata adapters double as reference implementations.
 - Add new reference UoWs under `uows/` and document them in `docs/` so other teams can reuse them.
 - Keep Job/Result evolution backward compatible; document contract changes in `docs/contracts.md` and version payloads via the `Job.Version` field.
 
