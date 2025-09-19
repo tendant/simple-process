@@ -21,7 +21,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 ## Getting Started
 1. Install Go 1.18+ and (optionally) Python 3.10+ if you plan to run the Python SDK.
 2. Build the inline sample: `make build` (outputs to `bin/inline-example`).
-3. Execute tests: `make test` (or `go test ./...`). Set `GOCACHE=$(pwd)/.gocache` when running under sandboxed environments.
+3. Execute tests: `make test` (or `go test ./...`) to cover unit and async integration scenarios. Set `GOCACHE=$(pwd)/.gocache` when running under sandboxed environments.
 4. Run the inline example: `go run ./examples/inline` after pointing `storage.Put` at a reader for your input file.
 5. Try the async workflow: `go run ./examples/async` to see `AsyncRunner` publishing to the in-memory bus while a worker updates metadata.
 6. Validate the Python SDK: `PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -p 'test_*.py'`.

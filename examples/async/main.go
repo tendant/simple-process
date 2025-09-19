@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -17,7 +18,17 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
+	attrs, artifacts, err := runDemo()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("attributes stored: %+v\n", attrs)
+	fmt.Printf("artifacts stored: %+v\n", artifacts)
+}
+
+func runDemo() (map[string]interface{}, []contracts.Artifact, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	storageAdapter := storage.NewInMemoryStorage()
@@ -28,16 +39,18 @@ func main() {
 		"hash": &hash.HashUoW{Storage: storageAdapter},
 	}
 
-	processed := make(chan struct{}, 1)
+	done := make(chan error, 1)
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
 		syncRunner := runner.NewSyncRunner()
+
 		for {
 			select {
 			case <-ctx.Done():
+				done <- ctx.Err()
 				return
 			case job, ok := <-bus.Subscribe():
 				if !ok {
@@ -46,38 +59,41 @@ func main() {
 
 				handler, found := registry[job.UoW]
 				if !found {
-					fmt.Printf("no handler registered for %s\n", job.UoW)
-					continue
+					done <- fmt.Errorf("no handler registered for %s", job.UoW)
+					return
 				}
 
 				result, err := syncRunner.Run(ctx, handler, job)
 				if err != nil {
-					fmt.Printf("worker error: %v\n", err)
-					continue
+					done <- err
+					return
 				}
 				if result == nil {
-					continue
+					done <- errors.New("runner returned nil result")
+					return
 				}
 
 				if err := metadata.UpdateFileAttributes(ctx, result.FileID, result.AttributesPatch); err != nil {
-					fmt.Printf("metadata error: %v\n", err)
+					done <- err
+					return
 				}
 				for _, artifact := range result.Artifacts {
 					if err := metadata.CreateArtifact(ctx, result.FileID, artifact); err != nil {
-						fmt.Printf("artifact error: %v\n", err)
+						done <- err
+						return
 					}
 				}
 
-				select {
-				case processed <- struct{}{}:
-				default:
-				}
+				done <- nil
+				return
 			}
 		}
 	}()
 
 	if err := storageAdapter.Put(ctx, "async.txt", strings.NewReader("hello async world")); err != nil {
-		panic(err)
+		bus.Close()
+		wg.Wait()
+		return nil, nil, err
 	}
 
 	job := contracts.Job{
@@ -93,21 +109,25 @@ func main() {
 
 	asyncRunner := runner.NewAsyncRunner(bus)
 	if _, err := asyncRunner.Run(ctx, registry[job.UoW], job); err != nil {
-		panic(err)
+		bus.Close()
+		wg.Wait()
+		return nil, nil, err
 	}
 
+	var resultErr error
 	select {
-	case <-processed:
-		fmt.Println("job processed asynchronously")
-	case <-time.After(1 * time.Second):
-		fmt.Println("processing timed out")
+	case resultErr = <-done:
+	case <-ctx.Done():
+		resultErr = ctx.Err()
 	}
 
 	bus.Close()
-	cancel()
 	wg.Wait()
 
-	attrs, artifacts := metadata.Snapshot()
-	fmt.Printf("attributes stored: %+v\n", attrs[job.File.ID])
-	fmt.Printf("artifacts stored: %+v\n", artifacts[job.File.ID])
+	if resultErr != nil {
+		return nil, nil, resultErr
+	}
+
+	attrsSnapshot, artifactsSnapshot := metadata.Snapshot()
+	return attrsSnapshot[job.File.ID], artifactsSnapshot[job.File.ID], nil
 }
