@@ -13,6 +13,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 ## Repository Layout
 - `core/` – Go domain primitives (contracts, adapters, runners, UoW interface) that applications embed.
 - `transports/` – Protocol-specific bindings (e.g., HTTP callback handler); add queue-specific publishers here.
+- `transports/` – Protocol-specific bindings (e.g., HTTP callback handler, optional NATS bus under the `nats` build tag emitting CloudEvents envelopes).
 - `examples/` – Runnable walkthroughs (currently inline hash example) showing how to wire a runner, adapter, and UoW.
 - `uows/` – Reference UoWs in multiple languages (`uows/go`, `uows/python`) for reuse across services.
 - `sdk/` – Language SDKs that expose decorators/helpers for registering UoWs with their runtimes.
@@ -25,6 +26,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 4. Run the inline example: `go run ./examples/inline` after pointing `storage.Put` at a reader for your input file.
 5. Try the async workflow: `go run ./examples/async` to see `AsyncRunner` publishing to the in-memory bus while a worker updates metadata.
 6. Validate the Python SDK: `PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -p 'test_*.py'`.
+7. (Optional) Run the NATS demo once a local `nats-server` is running: `go run -tags nats ./examples/nats` (requires `go get github.com/nats-io/nats.go`). Jobs are wrapped in CloudEvents v1.0 envelopes, so any downstream consumer that speaks CloudEvents can participate.
 
 ## Working with Units of Work
 - **Go:** Implement `core/uow.UoW` and return a `contracts.Result`. Refer to `uows/go/hash/hash.go` for a minimal example.
@@ -41,6 +43,11 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 - Provide concrete adapters in `core/adapters/*` to integrate with your blob store, metadata service, or observability stack; the in-memory bus and metadata adapters double as reference implementations.
 - Add new reference UoWs under `uows/` and document them in `docs/` so other teams can reuse them.
 - Keep Job/Result evolution backward compatible; document contract changes in `docs/contracts.md` and version payloads via the `Job.Version` field.
+
+## NATS Queue Walkthrough (Optional)
+- Start a local broker: `nats-server` (Homebrew: `brew install nats-server`).
+- Fetch the NATS client once: `go get github.com/nats-io/nats.go@latest`.
+- Publish and consume a job via NATS: `go run -tags nats ./examples/nats`. The example wires `AsyncRunner` into the NATS-backed bus and processes the message with a queue worker using the same in-memory storage used elsewhere in the repository while wrapping every message in a CloudEvents v1.0 envelope.
 
 ## Project Status & Next Steps
 This repository is still a scaffold: storage adapters, transports, and SDK utilities are minimal. Before production use, flesh out real bus/metadata/logging implementations, complete end-to-end examples, and automate tests across supported languages.
