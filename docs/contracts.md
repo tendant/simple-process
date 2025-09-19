@@ -43,3 +43,24 @@ The `Result` contract is the output of a UoW. It contains any patched attributes
 }
 ```
 
+## CloudEvents Envelope
+
+When jobs travel over external transports (e.g., the NATS bus), they are wrapped in a minimal [CloudEvents 1.0](https://cloudevents.io) envelope before delivery. The event header adds routing metadata while the `data` field carries the JSON job payload described above.
+
+```json
+{
+  "specversion": "1.0",
+  "type": "simpleprocess.job",
+  "source": "simple-process/nats",
+  "id": "j_abc123",
+  "time": "2024-05-06T12:34:56Z",
+  "datacontenttype": "application/json",
+  "data": {
+    "job_id": "j_abc123",
+    "uow": "ocr_pdf",
+    "file": { "id": "f_123", "blob": { "location": "s3://bucket/key" } }
+  }
+}
+```
+
+Consumers written in other languages can rely on the CloudEvents SDK for parsing, then hand the decoded job to their local UoW implementation.
