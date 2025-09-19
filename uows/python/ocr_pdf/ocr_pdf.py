@@ -1,36 +1,47 @@
-'''
+"""Reference OCR UoW implemented in Python.
+
+This example keeps dependencies to the standard library so it can run anywhere. It
+pretends the incoming file is a UTF-8 encoded PDF transcript and produces a simple
+artifact containing the extracted text while updating metadata with word counts.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Dict
+
 from simple_process_sdk.uow import uow
-from simple_process_sdk.utils import pypdf, tesseract
+
+
+def _read_text(path: Path) -> str:
+    if not path.exists():
+        raise FileNotFoundError(f"input file {path} not found")
+    return path.read_text(encoding="utf-8", errors="ignore")
+
 
 @uow("ocr_pdf")
-def ocr_pdf(job):
-    # TODO: Download file from presigned URL
-    # For now, assume the file is available locally
-    file_path = job["file"]["blob"]["location"]
+def ocr_pdf(job: Dict[str, Any]) -> Dict[str, Any]:
+    file_blob = job.get("file", {}).get("blob", {})
+    file_id = job.get("file", {}).get("id")
+    file_path = Path(file_blob.get("location", ""))
 
-    text = ""
-    with open(file_path, "rb") as f:
-        pdf = pypdf.PdfReader(f)
-        for page in pdf.pages:
-            # This is a simplified example. A real implementation would handle
-            # images within the PDF and use Tesseract for OCR.
-            text += page.extract_text()
+    text = _read_text(file_path)
+    words = len(text.split())
+    artifact_location = f"{file_path}.transcript.txt"
 
-    # TODO: Upload transcript as an artifact
     return {
-        "job_id": job["job_id"],
-        "uow": job["uow"],
-        "file_id": job["file"]["id"],
+        "job_id": job.get("job_id"),
+        "uow": job.get("uow"),
+        "file_id": file_id,
         "attributes_patch": {
-            "pages": len(pdf.pages),
+            "ocr_words": words,
         },
         "artifacts": [
             {
                 "kind": "transcript",
                 "mime": "text/plain",
-                "bytes": len(text),
-                "location": "s3://bucket/artifacts/{}/ocr.txt".format(job["file"]["id"])
+                "bytes": len(text.encode("utf-8")),
+                "location": artifact_location,
             }
-        ]
+        ],
     }
-'''

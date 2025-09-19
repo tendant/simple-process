@@ -24,6 +24,7 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 3. Execute tests: `make test` (or `go test ./...`). Set `GOCACHE=$(pwd)/.gocache` when running under sandboxed environments.
 4. Run the inline example: `go run ./examples/inline` after pointing `storage.Put` at a reader for your input file.
 5. Try the async workflow: `go run ./examples/async` to see `AsyncRunner` publishing to the in-memory bus while a worker updates metadata.
+6. Validate the Python SDK: `PYTHONPATH=sdk/python python3 -m unittest discover -s sdk/python/tests -p 'test_*.py'`.
 
 ## Working with Units of Work
 - **Go:** Implement `core/uow.UoW` and return a `contracts.Result`. Refer to `uows/go/hash/hash.go` for a minimal example.

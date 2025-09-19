@@ -1,5 +1,4 @@
-'''
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="simple-process-sdk",
@@ -8,6 +7,6 @@ setup(
     description="Python SDK for the File Processing Pipeline Library",
     author="Tendant",
     author_email="info@tendant.com",
-    url="https://github.com/tendant/simple-process/sdk/python",
+    url="https://github.com/tendant/simple-process",
+    python_requires=">=3.10",
 )
-'''
