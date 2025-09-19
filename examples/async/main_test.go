@@ -24,7 +24,15 @@ func TestRunDemoProducesHash(t *testing.T) {
 		t.Fatalf("unexpected hash: %s", hashValue)
 	}
 
-	if len(artifacts) != 0 {
-		t.Fatalf("expected no artifacts, got %d", len(artifacts))
+	if len(artifacts) != 1 {
+		t.Fatalf("expected 1 artifact, got %d", len(artifacts))
+	}
+
+	artifact := artifacts[0]
+	if artifact.Kind != "checksum" {
+		t.Fatalf("unexpected artifact kind: %s", artifact.Kind)
+	}
+	if artifact.Location != "artifacts/async-file-1.sha256" {
+		t.Fatalf("unexpected artifact location: %s", artifact.Location)
 	}
 }

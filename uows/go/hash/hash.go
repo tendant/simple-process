@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/tendant/simple-process/core/adapters"
 	"github.com/tendant/simple-process/core/contracts"
@@ -30,6 +31,11 @@ func (u *HashUoW) Process(ctx context.Context, job contracts.Job) (*contracts.Re
 
 	sha256sum := fmt.Sprintf("%x", h.Sum(nil))
 
+	artifactLocation := fmt.Sprintf("artifacts/%s.sha256", job.File.ID)
+	if err := u.Storage.Put(ctx, artifactLocation, strings.NewReader(sha256sum)); err != nil {
+		return nil, err
+	}
+
 	return &contracts.Result{
 		JobID:  job.JobID,
 		UoW:    job.UoW,
@@ -37,6 +43,13 @@ func (u *HashUoW) Process(ctx context.Context, job contracts.Job) (*contracts.Re
 		AttributesPatch: map[string]interface{}{
 			"sha256": sha256sum,
 		},
+		Artifacts: []contracts.Artifact{
+			{
+				Kind:     "checksum",
+				MIME:     "text/plain",
+				Bytes:    int64(len(sha256sum)),
+				Location: artifactLocation,
+			},
+		},
 	}, nil
 }
-
