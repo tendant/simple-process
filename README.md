@@ -56,10 +56,10 @@ A language-agnostic post-processing toolkit that turns each downstream operation
 - Publish and consume a job via NATS: `go run -tags nats ./examples/nats`. The example wires `AsyncRunner` into the NATS-backed bus and processes the message with a queue worker using the same in-memory storage used elsewhere in the repository while wrapping every message in a CloudEvents v1.0 envelope.
 
 ## S3 / MinIO Storage Adapter (Optional)
-- Build with the `s3` tag to enable the S3-compatible adapter: `go build -tags s3 ./...`.
-- Configure the adapter via `s3.Config` (endpoint, credentials, bucket, optional prefix) and inject it in place of the in-memory storage when constructing runners or UoWs.
-- The adapter streams reads via `Get`, uploads via `Put` without buffering entire files, and issues presigned download URLs through `PresignGet`.
-- It targets S3 and MinIO using the `github.com/minio/minio-go/v7` client; provide credentials through your preferred secrets mechanism.
+- Build with the `s3` tag to enable the S3-compatible adapter: `go build -tags s3 ./...` (requires the AWS SDK v2 modules such as `github.com/aws/aws-sdk-go-v2/config` and `github.com/aws/aws-sdk-go-v2/service/s3`).
+- Configure the adapter via `storage/s3.Config` (region, bucket, optional prefix, credentials provider, and optional custom endpoint/path-style) and inject it in place of the in-memory storage when constructing runners or UoWs.
+- The adapter streams reads via `Get`, performs multipart-aware uploads via `Put`, and issues presigned download URLs through `PresignGet`.
+- By supplying a custom endpoint and enabling path-style addressing, the same adapter can target MinIO or other S3-compatible backends.
 
 ## CloudEvents Envelope
 - Jobs published over transports are wrapped in a minimal CloudEvents v1.0 structure (`core/contracts/cloudevent.go`).
