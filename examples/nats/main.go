@@ -14,7 +14,7 @@ import (
 	"github.com/tendant/simple-process/pkg/contracts"
 	"github.com/tendant/simple-process/pkg/runner"
 	"github.com/tendant/simple-process/pkg/uow"
-	natsbus "github.com/tendant/simple-process/transports/nats"
+	natsbus "github.com/tendant/simple-process/pkg/transports/nats"
 	"github.com/tendant/simple-process/uows/go/hash"
 )
 
