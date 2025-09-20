@@ -15,7 +15,7 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	awss3 "github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/tendant/simple-process/core/adapters"
+	"github.com/tendant/simple-process/pkg/adapters"
 )
 
 // Config captures the information required to construct an S3-compatible storage adapter.

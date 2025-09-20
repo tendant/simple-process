@@ -3,7 +3,7 @@ package bus
 import (
 	"context"
 
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 // MemoryBus is an in-memory implementation of adapters.Bus for examples and tests.

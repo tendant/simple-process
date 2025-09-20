@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 // MemoryMetadata stores file attributes and artifacts in memory for demos/tests.

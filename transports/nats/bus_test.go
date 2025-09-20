@@ -8,7 +8,7 @@ import (
 	"time"
 
 	natsclient "github.com/nats-io/nats.go"
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 func TestBusPublishAndSubscribe(t *testing.T) {

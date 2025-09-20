@@ -7,8 +7,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tendant/simple-process/core/adapters"
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/adapters"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 // HashUoW is a UoW that calculates the SHA256 hash of a file.

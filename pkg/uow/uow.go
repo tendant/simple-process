@@ -3,7 +3,7 @@ package uow
 import (
 	"context"
 
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 // UoW defines the interface for a unit of work.

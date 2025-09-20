@@ -3,9 +3,9 @@ package runner
 import (
 	"context"
 
-	"github.com/tendant/simple-process/core/adapters"
-	"github.com/tendant/simple-process/core/contracts"
-	"github.com/tendant/simple-process/core/uow"
+	"github.com/tendant/simple-process/pkg/adapters"
+	"github.com/tendant/simple-process/pkg/contracts"
+	"github.com/tendant/simple-process/pkg/uow"
 )
 
 // Runner is the interface for a UoW runner.

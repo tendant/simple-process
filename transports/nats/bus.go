@@ -10,7 +10,7 @@ import (
 	"time"
 
 	natsclient "github.com/nats-io/nats.go"
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 // Bus publishes Jobs to NATS subjects so remote workers can execute them.

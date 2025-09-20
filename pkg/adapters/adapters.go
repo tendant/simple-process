@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/tendant/simple-process/core/contracts"
+	"github.com/tendant/simple-process/pkg/contracts"
 )
 
 // Storage provides an interface for blob storage operations.

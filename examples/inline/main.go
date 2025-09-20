@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendant/simple-process/core/adapters/storage"
-	"github.com/tendant/simple-process/core/contracts"
-	"github.com/tendant/simple-process/core/runner"
+	"github.com/tendant/simple-process/pkg/adapters/storage"
+	"github.com/tendant/simple-process/pkg/contracts"
+	"github.com/tendant/simple-process/pkg/runner"
 	"github.com/tendant/simple-process/uows/go/hash"
 )
 

@@ -7,7 +7,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/tendant/simple-process/core/adapters"
+	"github.com/tendant/simple-process/pkg/adapters"
 )
 
 // InMemoryStorage is an in-memory implementation of the Storage interface.
